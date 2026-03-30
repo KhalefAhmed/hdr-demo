@@ -23,21 +23,38 @@ Example:
 
 ## Run the Program
 
-Percentile distribution only:
+First, build the project:
 
 ```zsh
 cd /Users/ahmed.khalef/IdeaProjects/me/hdr-demo
-mvn -q -Dexec.mainClass=com.example.hdr.App -Dexec.args="sample-gc-times.txt" org.codehaus.mojo:exec-maven-plugin:3.5.0:java
+mvn clean install -q
 ```
 
-Percentile distribution + ASCII histogram:
+Then, run with percentile distribution only:
 
 ```zsh
-cd /Users/ahmed.khalef/IdeaProjects/me/hdr-demo
-mvn -q -Dexec.mainClass=com.example.hdr.App -Dexec.args="sample-gc-times.txt --histogram" org.codehaus.mojo:exec-maven-plugin:3.5.0:java
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) com.example.hdr.App sample-gc-times.txt
 ```
 
-You can also use `--hist`.
+Run with percentile distribution + ASCII histogram:
+
+```zsh
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) com.example.hdr.App sample-gc-times.txt --histogram
+```
+
+Run with percentile distribution + chart (PNG):
+
+```zsh
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) com.example.hdr.App sample-gc-times.txt --chart
+```
+
+Run with all outputs:
+
+```zsh
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) com.example.hdr.App sample-gc-times.txt --histogram --chart
+```
+
+You can also use `--hist` instead of `--histogram` or `--graph` instead of `--chart`.
 
 ## Observed Results (with `sample-gc-times.txt`)
 
@@ -45,18 +62,20 @@ Percentile output excerpt:
 
 ```text
 Value     Percentile
-125.44    0.000000000000
+165.89    0.000000000000
+220.16    0.100000000000
 460.80    0.500000000000
 741.38    0.900000000000
 782.34    1.000000000000
-#[Mean    = 464.18, StdDeviation = 195.62]
-#[Max     = 782.34, Total count  = 21]
+#[Mean    =       481.13, StdDeviation   =       184.79]
+#[Max     =       782.34, Total count    =           20]
 ```
 
 Quick interpretation:
-- p50 ~ **460.80 ms**: half of the intervals are <= 460 ms
-- p90 ~ **741.38 ms**: 90% of the intervals are <= 741 ms
-- max ~ **782.34 ms**: a few cases are noticeably slower than the median
+- p10 ~ **220.16 µs**: 10% of the intervals are <= 220 µs
+- p50 ~ **460.80 µs**: half of the intervals are <= 460 µs
+- p90 ~ **741.38 µs**: 90% of the intervals are <= 741 µs
+- max ~ **782.34 µs**: a few cases are noticeably slower than the median
 
 ASCII histogram excerpt:
 
@@ -76,9 +95,9 @@ A **long-tail distribution** means:
 - these rare high values push the average up and impact perceived latency
 
 In this dataset:
-- the core of the distribution is around ~220-650 ms
-- upper percentiles (p90 to max) rise to ~782 ms
-- the tail is not huge, but it is visible and meaningful for performance analysis
+- the core of the distribution is around ~220-650 µs
+- upper percentiles (p90 to max) rise to ~782 µs
+- the tail is visible and meaningful for performance analysis
 
 In practice, monitor **p95/p99/max** in addition to the mean, because tail values are usually what users feel during rare slow events.
 
