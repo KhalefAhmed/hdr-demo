@@ -8,6 +8,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>hdr-demo</name>
+  <description>A demo project that reads GC timestamps from a file, computes inter-event intervals, and displays a percentile distribution and optional ASCII histogram using HdrHistogram.</description>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
